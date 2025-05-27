@@ -1,0 +1,10 @@
+---
+
+- name: run all rules to install jenkins
+  hosts: grp1
+  become: yes  
+  roles: 
+  - amir
+  - docker_installation
+  - gradle_installation
+  - install_jenkins  
