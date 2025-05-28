@@ -27,21 +27,10 @@
       enabled: yes
       gpgcheck: yes
       gpgkey: https://download.docker.com/linux/centos/gpg
-
-
-
-- name: Clean DNF cache
-  command: dnf clean all
-
-- name: Update DNF cache
-  command: dnf makecache
-
-
-# you need to update package manager
-- name: update cache 
-  yum:
-    update_cache: yes
-
+  notify:
+    - clean dnf cache
+    - update dnf cache
+    - update yum cache
 
 - name:
   package:

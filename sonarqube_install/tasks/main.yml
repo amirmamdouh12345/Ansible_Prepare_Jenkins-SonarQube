@@ -1,0 +1,70 @@
+---
+# tasks file for sonarqube_install
+
+# install java in another role
+
+- name: install postgres 
+  dnf: 
+     name: postgresql15-server-15.7-1.amzn2023.0.1.x86_64
+     state: present
+     update_cache: yes
+  notify:
+    - create db cluster
+
+- name: start postgres
+  service:
+     name: postgresql
+     state: started
+     
+- name: add password to postgres user
+  command: 'echo postgres:admin123 | chpasswd' 
+ 
+
+- name: adjust Postgres Configurations 
+  block: 
+          
+           - name: add sonar user inside db
+             command: sudo -u postgres createuser sonar
+             register: createuser_result
+             failed_when:
+                - createuser_result.rc != 0
+                - "'already exists' not in createuser_result.stderr"
+               
+           - name: put password to sonar user
+             command: sudo -u postgres psql -c "ALTER USER sonar WITH ENCRYPTED PASSWORD 'admin123';"
+        
+           - name: create sonar database
+             command: sudo -u postgres psql -c "CREATE DATABASE sonarqube OWNER sonar ;"  # OWNER sonar     
+             register: createdb_result
+             failed_when:
+               - createdb_result != 0
+               - "'already exists' not in createdb_result.stderr"
+
+
+           - name: Grant all priviledges
+             command: sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE sonarqube TO sonar;"
+
+           - name: restart postgres
+             service: 
+                       name: postgresql
+                       state: restarted          
+
+
+- name: prepare sonarqube directory sonarqube 
+  file: 
+    name: /sonarqube/
+    state: directory
+
+- name: install sonarqube zip file
+  get_url: 
+     url: https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-9.9.8.100196.zip
+     dest: /sonarqube/sonarqube.zip
+
+- name: unarchive sonarqube zip
+  unarchive:
+     src: /sonarqube/sonarqube.zip
+     dest: /opt/
+     mode: '0644'
+     remote_src: yes
+
+

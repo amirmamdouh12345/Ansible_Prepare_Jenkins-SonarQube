@@ -10,17 +10,10 @@
     enabled: yes
     gpgcheck: yes
     gpgkey: https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
-
-
-- name: clean dnf cache
-  command: "dnf clean all "
-
-- name: update dnf cache
-  command: "dnf makecache"
-
-- name: update
-  yum:
-    update_cache: yes
+  notify: 
+    - clean dnf cache
+    - update dnf cache
+    - update yum cache
 
 - name: install jenkins
   package:

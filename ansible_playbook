@@ -7,4 +7,5 @@
   - amir
   - docker_installation
   - gradle_installation
-  - install_jenkins  
+  - install_jenkins 
+  - sonarqube_install 
