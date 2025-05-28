@@ -67,4 +67,70 @@
      mode: '0644'
      remote_src: yes
 
+- name: change sonarqube dir name
+  command: 'mv /opt/sonarqube-9.9.8.100196 /opt/sonarqube '
+  args:
+    creates: /opt/sonarqube
+
+- name: create sonar group
+  group:
+    name: sonar
+    state: present
+
+- name: create sonar user
+  user:
+    name: sonar
+    groups: sonar
+    shell: /bin/bash
+
+- name: delegate ownership to sonar 
+  file:
+    path: /opt/sonarqube
+    owner: sonar
+    group: sonar 
+    mode: '0664'
+    recurse: yes
+
+- name: Adjust sonar configurations
+  block: 
+              - name: insert sonar configurations in sonar.service
+                copy:
+                  content: |
+                    sonar.jdbc.username=sonar
+                    sonar.jdbc.password=admin123
+                    sonar.jdbc.url=jdbc:postgresql://localhost/sonarqube
+                    sonar.web.host=0.0.0.0
+                    sonar.web.port=9000
+                    sonar.web.javaAdditionalOpts=-server
+                    sonar.search.javaOpts=-Xmx512m -Xms512m -XX:+HeapDumpOnOutOfMemoryError
+                    sonar.log.level=INFO
+                    sonar.path.logs=logs
+                  dest: /opt/sonarqube/conf/sonar.properties
+              
+              - name: Create systemd service
+                copy:
+                  content: |
+                      [Unit]
+                      Description=SonarQube service
+                      After=syslog.target network.target
+
+                      [Service]
+                      Type=forking
+                      ExecStart=/opt/sonarqube/bin/linux-x86-64/sonar.sh start
+                      ExecStop=/opt/sonarqube/bin/linux-x86-64/sonar.sh stop
+                      User=sonar
+                      Group=sonar
+                      Restart=always
+                      LimitNOFILE=65536
+                      LimitNPROC=4096
+                             
+                      [Install]
+                      WantedBy=multi-user.target
+                  dest: /etc/systemd/system/sonarqube.service   
+
+              - name: Reload systemd and enable service
+                systemd:
+                   daemon_reload: yes
+                   enabled: yes
+                   name: sonarqube
 
