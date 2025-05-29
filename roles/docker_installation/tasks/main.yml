@@ -42,3 +42,8 @@
     - docker-ce
     - containerd.io
 
+- name: start docker
+  service:
+    name: docker
+    state: started
+    enabled: yes

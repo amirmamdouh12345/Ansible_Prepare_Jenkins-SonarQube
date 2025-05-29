@@ -14,4 +14,10 @@
   become: yes  
   roles: 
   - jenkins_install
-  - sonarqube_install 
+  - sonarqube_install
+
+- name: run worker jenkins roles
+  hosts: jenkins-worker
+  become: yes
+  roles:
+  - worker_jenkins_installation 
