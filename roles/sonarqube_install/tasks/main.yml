@@ -9,13 +9,19 @@
      state: present
      update_cache: yes
   notify:
-    - create db cluster
+
+- name: create database cluster
+  command: postgresql-setup --initdb
+  args:
+    creates: /var/lib/pgsql/data/postgresql.conf
+
 
 - name: start postgres
   service:
      name: postgresql
      state: started
-     
+     enabled: yes
+
 - name: add password to postgres user
   command: "echo postgres:{{ password }} | chpasswd"
  
@@ -185,6 +191,12 @@
                   }  
               }
         dest: /etc/nginx/sites-available/sonarqube
+
+    - name: start nginx
+      service: 
+         name: nginx
+         state: started
+         enabled: yes
 
     - name: Enable Nginx site
       file:

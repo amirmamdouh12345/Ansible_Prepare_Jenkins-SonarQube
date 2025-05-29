@@ -8,3 +8,9 @@
 
 - name: current java 17 # if there were more than version java 17 , java 21 ,... 
   command: alternatives --set java /usr/lib/jvm/java-17-amazon-corretto.x86_64/bin/java
+
+
+- name: install git
+  package:
+    name: git
+    state: present

@@ -3,7 +3,7 @@
   hosts: grp1
   become: yes
   roles:
-  - amir
+  - java_plus_git_install 
   - docker_installation
   - gradle_installation
 
@@ -13,5 +13,5 @@
   hosts: jenkins-instance
   become: yes  
   roles: 
-  - install_jenkins 
+  - jenkins_install
   - sonarqube_install 

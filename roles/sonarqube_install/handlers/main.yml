@@ -1,5 +1,3 @@
 ---
 # handlers file for sonarqube_install
 
-- name: create db cluster
-  command: postgres-setup --initdb
